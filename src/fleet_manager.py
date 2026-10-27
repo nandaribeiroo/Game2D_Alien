@@ -12,12 +12,32 @@ class FleetManager:
     """Responsável por criar e gerenciar a frota de alienígenas."""
 
     def __init__(
-        self, screen: pygame.Surface, settings: Settings, ship: Ship
+        self,
+        screen: pygame.Surface,
+        settings: Settings,
+        ship: Ship,
+        alien_class: type[Alien],
     ) -> None:
         self.screen = screen
         self.settings = settings
         self.ship = ship
+        self.alien_class = alien_class
         self.aliens: pygame.sprite.Group[Alien] = pygame.sprite.Group()
+
+    def create_alien(
+        self,
+        alien_number: int,
+        row_number: int,
+        alien_width: int,
+        alien_height: int,
+    ) -> None:
+        """Cria um alienígena e define sua posição."""
+        alien = self.alien_class(self.screen, self.settings)
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        alien.y = alien_height + 2 * alien_height * row_number
+        alien.rect.y = alien.y
+        self.aliens.add(alien)
 
     def create_fleet(self) -> None:
         """Cria uma frota de alienígenas."""
@@ -40,12 +60,13 @@ class FleetManager:
 
         for row_number in range(number_rows):
             for alien_number in range(number_aliens_x):
-                alien = Alien(self.screen, self.settings)
-                alien.x = alien_width + 2 * alien_width * alien_number
-                alien.rect.x = alien.x
-                alien.y = alien_height + 2 * alien_height * row_number
-                alien.rect.y = alien.y
-                self.aliens.add(alien)
+                self.create_alien(
+                    alien_number,
+                    row_number,
+                    alien_width,
+                    alien_height,
+                )
+
 
     def _update_aliens(self) -> None:
         """Atualiza as posições da frota de alienígenas."""
