@@ -2,42 +2,69 @@
 from abc import ABC, abstractmethod
 
 
-# Classe abstrata que define o contrato
 class Desconto(ABC):
     @abstractmethod
-    def calcular(self, valor):
+    def calcular(self, valor: float) -> float:
         pass
 
 
-# Implementação para cliente normal
+class ICupom(ABC):
+    @abstractmethod
+    def aplicar_cupom(self, codigo: str) -> bool:
+        pass
+
+
+class IVIP(ABC):
+    @abstractmethod
+    def validar_usuario_vip(self, usuario: str) -> bool:
+        pass
+
+
 class DescontoNormal(Desconto):
-    def calcular(self, valor):
+    def calcular(self, valor: float) -> float:
         return valor * 0.1
 
 
-# Implementação para cliente VIP
-class DescontoVIP(Desconto):
-    def calcular(self, valor):
+class DescontoVIP(Desconto, ICupom, IVIP):
+    def calcular(self, valor: float) -> float:
         return valor * 0.2
 
+    def aplicar_cupom(self, codigo: str) -> bool:
+        return codigo == "DESC10"
 
-# Implementação para cliente Premium
+    def validar_usuario_vip(self, usuario: str) -> bool:
+        return usuario == "VIP"
+
+
 class DescontoPremium(Desconto):
-    def calcular(self, valor):
+    def calcular(self, valor: float) -> float:
         return valor * 0.3
 
 
-def main():
+def aplicar_desconto(desconto: Desconto, valor: float) -> float:
+    return desconto.calcular(valor)
+
+
+class Pedido:
+    def __init__(self, desconto: Desconto) -> None:
+        self.desconto = desconto
+
+    def calcular_preco_final(self, valor: float) -> float:
+        return valor - self.desconto.calcular(valor)
+
+
+
+if __name__ == "__main__":
     valor = 100
 
     normal = DescontoNormal()
     vip = DescontoVIP()
     premium = DescontoPremium()
 
-    print(f"Desconto Normal: R$ {normal.calcular(valor):.2f}")
-    print(f"Desconto VIP: R$ {vip.calcular(valor):.2f}")
-    print(f"Desconto Premium: R$ {premium.calcular(valor):.2f}")
+    print("Desconto normal:", aplicar_desconto(normal, valor))
+    print("Desconto VIP:", aplicar_desconto(vip, valor))
+    print("Desconto Premium:", aplicar_desconto(premium, valor))
+    print("Cupom VIP:", vip.aplicar_cupom("DESC10"))
 
-
-if __name__ == "__main__":
-    main()
+    pedido = Pedido(DescontoNormal())
+    print("Preço final do pedido:", pedido.calcular_preco_final(valor))
