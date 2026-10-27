@@ -60,6 +60,38 @@ class AlienInvasion:
                 alien.rect.y = alien.y
                 self.aliens.add(alien)
 
+    def _check_events(self) -> None:
+        """Responde a eventos de pressionamento de teclas e mouse (fechamento da janela)."""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                self._handle_keydown(event)
+            elif event.type == pygame.KEYUP:
+                self._handle_keyup(event)
+
+    def _handle_keydown(self, event: pygame.event.Event) -> None:
+        """Responde a eventos de pressionamento de teclas."""
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = True
+        elif event.key == pygame.K_LEFT:
+            self.ship.moving_left = True
+        elif event.key == pygame.K_SPACE:
+            self._fire_bullet()
+
+    def _handle_keyup(self, event: pygame.event.Event) -> None:
+        """Responde a eventos de soltura de teclas."""
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = False
+        elif event.key == pygame.K_LEFT:
+            self.ship.moving_left = False
+
+    def _fire_bullet(self) -> None:
+        """Dispara um projétil se o limite de projéteis ainda não tiver sido alcançado."""
+        if len(self.bullets) < self.settings.bullet_allowed:
+            new_bullet = Bullet(self.screen, self.settings, self.ship)
+            self.bullets.add(new_bullet)
+
     def run_game(self) -> None:
         """Cria um laço de repetição para a tela sempre ficar visível até
         que o usuário decida fechar a janela."""
